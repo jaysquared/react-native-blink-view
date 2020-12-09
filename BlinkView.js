@@ -5,16 +5,15 @@
 'use strict';
 
 import React, { Component } from "react";
-import PropTypes            from "prop-types";
-import { View, Animated }   from "react-native";
+import PropTypes from "prop-types";
+import { View, Animated } from "react-native";
 
-export default class BlinkView extends Component
-{
+export default class BlinkView extends Component {
   /**
    * Local timer handled function. Destroyed on unmount
    * @type {Function}
    */
-  _onDelay:any = null;
+  _onDelay: any = null;
 
   /**
    * Props validation
@@ -25,99 +24,87 @@ export default class BlinkView extends Component
    *   blinking : {boolean} Defines if the element is currently blinkink, Default is true
    * }
    */
-  static propTypes:Object = {
-    element  : PropTypes.any,
-    children : PropTypes.any,
-    delay    : PropTypes.number,
-    blinking : PropTypes.bool
+  static propTypes: Object = {
+    element: PropTypes.any,
+    children: PropTypes.any,
+    delay: PropTypes.number,
+    blinking: PropTypes.bool,
+    opacity: PropTypes.number
   }
 
   /**
    * Default props
    * @return {object} Default props for this element.
    */
-  static defaultProps:Object = {
-    element  : View,
-    children : null,
-    delay    : 1500,
-    blinking : true
+  static defaultProps: Object = {
+    element: View,
+    children: null,
+    delay: 500,
+    blinking: true,
+    opacity: 0.5
   }
 
   /**
    * Init states
    * @return {object} states
    */
-  constructor( props:Object, state:Object ):Object
-  {
-    try
-    {
-      super( props );
+  constructor(props: Object, state: Object): Object {
+    try {
+      super(props);
 
       this.state = {
-        delay     : props && props.delay || 1500,
-        blinkAnim : new Animated.Value( 0 )
+        delay: props && props.delay || 1000,
+        blinkAnim: new Animated.Value(1)
       };
     }
-    catch ( err )
-    {
-      console.warn( err );
+    catch (err) {
+      console.warn(err);
     }
   }
 
-  componentDidMount():void
-  {
-    try
-    {
-      if ( this.props.blinking === true )
-      {
-        clearInterval( this._onDelay );
-        this._onDelay = setInterval( ():void =>
-        {
+  componentDidMount(): void {
+    try {
+      if (this.props.blinking === true) {
+        clearInterval(this._onDelay);
+        this._onDelay = setInterval((): void => {
           this.state.blinkAnim.stopAnimation();
-          Animated.timing( this.state.blinkAnim, {
-            toValue: this.state.blinkAnim._value === 0 ? 1 : 0,
-            duration: this.state.delay-1,
+          Animated.timing(this.state.blinkAnim, {
+            toValue: this.state.blinkAnim._value < 1 ? 1 : this.props.opacity,
+            duration: this.state.delay - 1,
             useNativeDriver: false
           }).start();
-        }, this.state.delay+1 );
+        }, this.state.delay + 1);
       }
     }
-    catch ( err )
-    {
-      console.warn( err );
+    catch (err) {
+      console.warn(err);
     }
   }
 
-  componentWillUnmount():void
-  {
-    try
-    {
-      clearInterval( this._onDelay );
+  componentWillUnmount(): void {
+    try {
+      clearInterval(this._onDelay);
     }
-    catch ( err )
-    {
-      console.warn( err );
+    catch (err) {
+      console.warn(err);
     }
   }
 
-  render():any
-  {
-    try
-    {
-      const isBlinking:bolean = this.props && this.props.blinking || true;
-      const Element:any = ( ( isBlinking === true ) ? Animated.createAnimatedComponent( this.props && this.props.element || View ) : this.props && this.props.element || View );
+  render(): any {
+    try {
+      const isBlinking: bolean = this.props && this.props.blinking || true;
+      const Element: any = ((isBlinking === true) ? Animated.createAnimatedComponent(this.props && this.props.element || View) : this.props && this.props.element || View);
 
-      return  (
+      return (
         <Element
           {...this.props}
-          style = {[this.props.style, { opacity: ( isBlinking === true ) ? this.state.blinkAnim : 1 } ]}>
+          style={[this.props.style, { opacity: (isBlinking === true) ? this.state.blinkAnim : 1 }]}>
           {this.props && this.props.children || null}
         </Element>
       )
     }
-    catch ( err )
-    {
-      console.warn( err );
+    catch (err) {
+      console.warn(err);
     }
     return (
       this.props && this.props.children || <View />
